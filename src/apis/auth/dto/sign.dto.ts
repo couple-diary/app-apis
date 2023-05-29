@@ -2,7 +2,7 @@ import { IsNotEmpty, MaxLength } from 'class-validator';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
+export class SignDto {
   @ApiProperty({ description: '사용자 닉네임' })
   @IsNotEmpty()
   @MaxLength(30)

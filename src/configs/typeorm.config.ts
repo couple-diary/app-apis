@@ -1,13 +1,21 @@
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
-export const typeOrmFactory = (service: ConfigService): TypeOrmModuleOptions => ({
-  type: 'postgres',
-  host: service.get<string | undefined>('DB_HOST'),
-  port: service.get<number | undefined>('DB_PORT'),
-  username: service.get<string | undefined>('DB_USERNAME'),
-  password: service.get<string | undefined>('DB_PASSWORD'),
-  database: service.get<string | undefined>('DB_DATABASE'),
-  entities: [],
-  synchronize: true
-})
+@Injectable()
+export class DatabaseOptionsFactory implements TypeOrmOptionsFactory {
+  constructor(private configService: ConfigService) {}
+
+  createTypeOrmOptions(): TypeOrmModuleOptions | Promise<TypeOrmModuleOptions> {
+    return {
+      type: 'postgres',
+      host: this.configService.get<string | undefined>('DB_HOST'),
+      port: this.configService.get<number | undefined>('DB_PORT'),
+      username: this.configService.get<string | undefined>('DB_USERNAME'),
+      password: this.configService.get<string | undefined>('DB_PASSWORD'),
+      database: this.configService.get<string | undefined>('DB_DATABASE'),
+      entities: [],
+      synchronize: true
+    };
+  }
+}

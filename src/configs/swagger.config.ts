@@ -10,5 +10,5 @@ export function setSwagger(app: INestApplication): void {
   // Document 생성
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   // 생성한 Document를 보여주기 위한 URL 설정
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('apis-doc', app, document);
 }
