@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @ApiProperty({ description: 'ID', type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,10 +17,10 @@ export class User {
   password: string;
 
   @ApiProperty({ description: '코드', type: String })
-  @Column()
-  code: string;
+  @Column({ nullable: true })
+  code?: string;
 
   @ApiProperty({ description: '그룹 ID', type: String })
-  @Column()
-  groupId: string;
+  @Column({ nullable: true })
+  groupId?: string;
 }

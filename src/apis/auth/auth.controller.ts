@@ -2,7 +2,7 @@ import { Body, Controller, UsePipes, ValidationPipe } from '@nestjs/common';
 // DTO
 import { SignDto } from './dto/sign.dto';
 // Method
-import { Get, Post } from '@nestjs/common';
+import { Post } from '@nestjs/common';
 // Service
 import { AuthService } from './auth.service';
 // Swagger
@@ -13,7 +13,7 @@ import { ApiTags } from '@nestjs/swagger';
 export class AuthController {
   constructor(private service: AuthService) {}
 
-  @Get('signin')
+  @Post('signin')
   @UsePipes(ValidationPipe)
   signin(@Body() input: SignDto): Promise<void> {
     return this.service.signin(input)
