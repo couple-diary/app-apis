@@ -1,12 +1,15 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
+// Entity
+import { Group } from '../group/group.entity';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
-export class User extends BaseEntity {
-  @ApiProperty({ description: 'ID', type: Number })
-  @PrimaryGeneratedColumn()
-  id: number;
+@Unique(['nickname'])
+export class RawUser extends BaseEntity {
+  @ApiProperty({ description: 'ID', type: String })
+  @PrimaryColumn()
+  id: string;
 
   @ApiProperty({ description: '사용자 닉네임', type: String })
   @Column()
@@ -16,11 +19,18 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @ApiProperty({ description: '코드', type: String })
-  @Column({ nullable: true })
-  code?: string;
+  @ApiProperty({ description: '소속 그룹', type: Group, nullable: true })
+  @ManyToOne(type => Group, group => group.users, { eager: true })
+  group: Group;
+}
 
-  @ApiProperty({ description: '그룹 ID', type: String })
-  @Column({ nullable: true })
-  groupId?: string;
+export class User {
+  @ApiProperty({ description: 'ID', type: String })
+  id: string;
+
+  @ApiProperty({ description: '사용자 닉네임', type: String })
+  nickname: string;
+
+  @ApiProperty({ description: '소속 그룹', type: Group, nullable: true })
+  group: Group;
 }
