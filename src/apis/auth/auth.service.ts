@@ -6,24 +6,32 @@ import { SignDto } from './dto/sign.dto';
 // Entity
 import { RawUser } from '../user/user.entity';
 // Exception
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+// Service
+import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
+  constructor (private userService: UserService, private jwtService: JwtService) {}
+
   /**
    * [Method] 로그인
    * @param input 로그인 정보
    */
-  async signin(input: SignDto): Promise<void> {
+  async signin(input: SignDto): Promise<{ accessToken: string }> {
     // 로그인 정보 추출
     const { nickname, password } = input;
 
     // 사용자 조회
-    const user: RawUser = await this.findUserByName(nickname);
-    // 예외 처리
-    if (!user) throw new BadRequestException();
+    const user: RawUser = await this.userService.findRawUser({ nickname });
     // 비밀번호 불일치 처리
-    else if (!await bcrypt.compare(password, user.password)) throw new BadRequestException();
+    if (!await bcrypt.compare(password, user.password)) throw new UnauthorizedException();
+
+    // JWT 생성을 위한 Payload
+    const payload: any = { sub: user.id };
+    // JWT 토큰 생성 및 반환
+    return { accessToken: await this.jwtService.signAsync(payload) };
   }
   /**
    * [Method] 회원가입

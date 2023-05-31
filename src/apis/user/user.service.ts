@@ -29,6 +29,21 @@ export class UserService {
     return user.nickname;
   }
   /**
+   * [Method] 비밀번호를 포함한 사용자 전체 정보 조회
+   * @param nickname 닉네임 또는 ID 속성을 포함한 객체
+   * @returns 조회 결과
+   */
+  async findRawUser({ id, nickname }: { id?: string, nickname?: string }): Promise<RawUser> {
+    // 예외 처리
+    if (!id && !nickname) throw new BadRequestException();
+    // 닉네임을 이용한 사용자 조회
+    const user: RawUser = await RawUser.findOneBy(id ? { id } : { nickname });
+    // 예외 처리
+    if (!user) throw new NotFoundException();
+    // 결과 반환
+    return user;
+  }
+  /**
    * [Method] ID를 이용한 사용자 조회
    * @param id 사용자 ID
    * @returns 조회 결과

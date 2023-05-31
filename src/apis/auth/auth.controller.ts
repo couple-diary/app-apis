@@ -21,8 +21,9 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   @ApiResponse({ status: 200, description: '로그인 완료' })
   @ApiResponse({ status: 400, description: '로그인 실패', type: ErrorResponse })
-  signin(@Body() input: SignDto): Promise<void> {
-    return this.service.signin(input)
+  @ApiResponse({ status: 403, description: '로그인 실패', type: ErrorResponse })
+  signin(@Body() input: SignDto): Promise<{ accessToken: string }> {
+    return this.service.signin(input);
   }
 
   @Post('signup')
