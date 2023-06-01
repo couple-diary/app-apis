@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 // DTO
-import { SignDto } from './dto/sign.dto';
+import { SignDto } from './dto/auth.dto';
 // Entity
 import { RawUser } from '../user/user.entity';
 // Exception
