@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, UsePipes, ValidationPipe } from '@nestjs/common';
 // DTO
-import { SignDto } from './dto/sign.dto';
+import { SignDto } from './dto/auth.dto';
 // Interface
 import { ErrorResponse } from '../response.interface';
 // Method
