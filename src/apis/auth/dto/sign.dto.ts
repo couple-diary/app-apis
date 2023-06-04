@@ -14,3 +14,11 @@ export class SignDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class TokenDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken?: string;
+}
