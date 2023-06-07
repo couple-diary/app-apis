@@ -9,7 +9,7 @@ import { SignDto, TokenDto } from './dto/sign.dto';
 import { Auth } from './auth.entity';
 import { User } from '../user/user.entity';
 // Exception
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 // JWT
 import { JwtService } from '@nestjs/jwt';
 import type { JwtSignOptions } from '@nestjs/jwt'
@@ -55,13 +55,14 @@ export class AuthService {
   }
   /**
    * [Method] 로그아웃
-   * @param accessToken 액세스 토큰
+   * @param userId 사용자 ID
    */
-  async signout(accessToken: string): Promise<void> {
-    // 토큰 복호화
-    const decoded: any = this.jwtService.decode(accessToken);
-    // 리프레쉬 토큰 삭제
-    await Auth.delete({ userId: decoded.sub });
+  async signout(userId: string): Promise<void> {
+    try {
+      await Auth.delete({ userId });
+    } catch (err: unknown) {
+      throw new InternalServerErrorException();
+    }
   }
   /**
    * [Method] 회원가입
@@ -85,15 +86,11 @@ export class AuthService {
   }
   /**
    * [Method] 액세스 토큰 갱신
+   * @param userId 사용자 ID
    * @param refreshToken 리프레쉬 토큰
    * @returns 액세스 토큰
    */
-  async slient(accessToken: string, refreshToken: string): Promise<TokenDto> {
-    // 액세스 토큰 복호화
-    const payload: any = this.jwtService.decode(accessToken);
-    // 사용자 ID 추출
-    const { sub: userId } = payload;
-
+  async slient(userId: string, refreshToken: string): Promise<TokenDto> {
     // 사용자 리프레쉬 토큰 조회
     const auth: Auth = await Auth.findOneBy({ userId });
     // 예외 처리
