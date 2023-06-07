@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory } from '@nestjs/typeorm';
 // Entity
 import { Auth } from 'src/apis/auth/auth.entity';
+import { Event } from 'src/apis/event/event.entity';
+import { Group } from 'src/apis/group/group.entity';
 import { User } from 'src/apis/user/user.entity';
 // Type
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -19,7 +21,7 @@ export class PostgresConfigProvider implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('POSTGRE_DB_USERNAME'),
       password: this.configService.get<string>('POSTGRE_DB_PASSWORD'),
       database: this.configService.get<string>('POSTGRE_DB_DATABASE'),
-      entities: [User],
+      entities: [Event, Group, User],
       synchronize: true
     };
   }

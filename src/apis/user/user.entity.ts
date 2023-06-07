@@ -1,4 +1,7 @@
-import { BaseEntity, Column, Entity, PrimaryColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
+// Entity
+import { Event } from '../event/event.entity';
+import { Group } from '../group/group.entity';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -16,6 +19,12 @@ export class User extends BaseEntity {
 
   @Column()
   createAt: Date;
+
+  @ManyToOne(type => Group, group => group.users, { eager: true })
+  group: Group;
+
+  @ManyToOne(type => Event, event => event.owner)
+  events: Event;
 }
 
 export class UserInfo {
@@ -27,4 +36,7 @@ export class UserInfo {
 
   @ApiProperty()
   createAt: Date;
+
+  @ApiProperty()
+  group: Group;
 }

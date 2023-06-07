@@ -8,6 +8,8 @@ import { UserModule } from './apis/user/user.module';
 import { envOptions } from './configs/env.config';
 // TypeORM Configuration
 import { MongoConfigProvider, PostgresConfigProvider } from './configs/typeorm.config';
+import { GroupModule } from './apis/group/group.module';
+import { EventModule } from './apis/event/event.module';
 
 @Module({
   imports: [
@@ -15,7 +17,9 @@ import { MongoConfigProvider, PostgresConfigProvider } from './configs/typeorm.c
     UserModule,
     ConfigModule.forRoot(envOptions),
     TypeOrmModule.forRootAsync({ useClass: PostgresConfigProvider }),
-    TypeOrmModule.forRootAsync({ useClass: MongoConfigProvider })
+    TypeOrmModule.forRootAsync({ useClass: MongoConfigProvider }),
+    GroupModule,
+    EventModule
   ],
   controllers: [],
   providers: [],

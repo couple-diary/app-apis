@@ -1,10 +1,9 @@
 import { Body, Controller, HttpCode, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import type { Request, Response } from 'express';
 // DTO
 import { AccessTokenDto, SignDto, TokenDto } from './auth.dto';
 // Exception
 import { UnauthorizedException } from '@nestjs/common';
-// Express
-import type { Request, Response } from 'express';
 // Guard
 import { JwtAuthGuard, SlientAuthGuard } from './auth.guard';
 // Method
@@ -14,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 // Swagger
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+// Utilities
+import { extractUserId } from 'src/utilities/extractor';
 
 @ApiTags('인증')
 @Controller('auth')
@@ -44,11 +45,11 @@ export class AuthController {
   @ApiResponse({ status: 401, description: '권한 없음' })
   @HttpCode(200)
   @Post('/signout')
-  @UsePipes(ValidationPipe)
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   async signout(@Req() req: Request, @Res() res: Response): Promise<any> {
     // 사용자 ID
-    const userId: string = this.extractUserId(req);
+    const userId: string = extractUserId(req);
     // 쿠키 내 리프레시 토큰 제거
     res.clearCookie('refresh', { path: '/' });
     // 로그아웃
@@ -58,9 +59,8 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '회원가입' })
-  @ApiResponse({ status: 200, description: '회원가입 성공' })
+  @ApiResponse({ status: 201, description: '회원가입 성공' })
   @ApiResponse({ status: 400, description: '회원가입 실패' })
-  @HttpCode(200)
   @Post('/signup')
   @UsePipes(ValidationPipe)
   signup(@Body() input: SignDto): Promise<void> {
@@ -72,11 +72,11 @@ export class AuthController {
   @ApiResponse({ status: 200, description: '로그인 갱신 성공', type: AccessTokenDto })
   @ApiResponse({ status: 401, description: '권한 없음' })
   @HttpCode(200)
-  @Post('/slient')
+  @Post('/silent')
   @UseGuards(SlientAuthGuard)
-  slient(@Req() req: Request): Promise<AccessTokenDto> {
+  silent(@Req() req: Request): Promise<AccessTokenDto> {
     // 사용자 ID
-    const userId: string = this.extractUserId(req);
+    const userId: string = extractUserId(req);
 
     // 리프레쉬 토큰 추출
     const refreshToken: string | undefined = req.cookies['refresh'];
@@ -84,20 +84,6 @@ export class AuthController {
     if (!refreshToken) throw new UnauthorizedException();
 
     // 액세스 토큰 갱신
-    return this.authService.slient(userId, refreshToken);
-  }
-
-  /**
-   * [Method] 사용자 ID 추출
-   * @param req 요청 객체
-   * @returns 사용자 ID
-   */
-  private extractUserId(req: Request): string {
-    // 사용자 ID
-    const { id } = req?.user as any;
-    // 예외 처리
-    if (!id) throw new UnauthorizedException();
-    // 반환
-    return id;
+    return this.authService.silent(userId, refreshToken);
   }
 }

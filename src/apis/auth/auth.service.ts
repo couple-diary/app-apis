@@ -90,7 +90,7 @@ export class AuthService {
    * @param refreshToken 리프레쉬 토큰
    * @returns 액세스 토큰
    */
-  async slient(userId: string, refreshToken: string): Promise<AccessTokenDto> {
+  async silent(userId: string, refreshToken: string): Promise<AccessTokenDto> {
     // 사용자 리프레쉬 토큰 조회
     const auth: Auth = await Auth.findOneBy({ userId });
     // 예외 처리
