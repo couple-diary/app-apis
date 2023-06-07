@@ -1,17 +1,19 @@
-import { Body, Controller, HttpCode, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, HttpCode, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 // DTO
 import { SignDto, TokenDto } from './dto/sign.dto';
 // Exception
 import { UnauthorizedException } from '@nestjs/common';
 // Express
 import type { Request, Response } from 'express';
+// Guard
+import { JwtAuthGuard, SlientAuthGuard } from './auth.guard';
 // Method
 import { Post } from '@nestjs/common';
 // Service
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 // Swagger
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
 
 @ApiTags('인증')
 @Controller('auth')
@@ -31,9 +33,27 @@ export class AuthController {
     // 쿠키 만료시간 설정
     const maxAge: number = (this.configService.get<number>('REFRESH_TOKEN_EXPIRES') | 1296000) * 1000;
     // 쿠키 설정
-    res.cookie('refresh', result.refreshToken, { httpOnly: true, maxAge: maxAge })
+    res.cookie('refresh', result.refreshToken, { httpOnly: true, maxAge: maxAge, path: '/' });
 
     return res.json({ accessToken: result.accessToken });
+  }
+
+  @ApiOperation({ summary: '로그아웃' })
+  @ApiResponse({ status: 200, description: '로그아웃 성공' })
+  @ApiResponse({ status: 401, description: '로그아웃 실패' })
+  @HttpCode(200)
+  @Post('/signout')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  async signout(@Req() req: Request, @Res() res: Response): Promise<any> {
+    // 액세스 토큰 추출
+    const accessToken: string = this.extractTokenFromHeader(req);
+    // 쿠키 내 리프레시 토큰 제거
+    res.clearCookie('refresh', { path: '/' });
+    // 로그아웃
+    await this.authService.signout(accessToken);
+    // 응답
+    return res.json();
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -52,13 +72,20 @@ export class AuthController {
   @ApiResponse({ status: 401, description: '권한 없음' })
   @HttpCode(200)
   @Post('/slient')
+  @UseGuards(SlientAuthGuard)
   slient(@Req() req: Request): Promise<TokenDto> {
-    // 헤더에서 액세스 토큰 추출
+    // 액세스 토큰 추출
+    const accessToken: string = this.extractTokenFromHeader(req);
+    // 예외 처리
+    if (!accessToken) throw new UnauthorizedException();
+
+    // 리프레쉬 토큰 추출
     const refreshToken: string | undefined = req.cookies['refresh'];
-    // 토큰이 없을 경우
+    // 예외 처리
     if (!refreshToken) throw new UnauthorizedException();
+
     // 액세스 토큰 갱신
-    return this.authService.slient(refreshToken);
+    return this.authService.slient(accessToken, refreshToken);
   }
 
   /**

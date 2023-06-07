@@ -6,6 +6,7 @@ import { compare, genSalt, hash } from 'bcrypt';
 // DTO
 import { SignDto, TokenDto } from './dto/sign.dto';
 // Entity
+import { Auth } from './auth.entity';
 import { User } from '../user/user.entity';
 // Exception
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
@@ -42,8 +43,25 @@ export class AuthService {
     // 리프레쉬 토큰 생성
     const refreshToken: string = this.jwtService.sign(payload, options);
 
+    // 리프레쉬 토큰 존재 확인을 위한 조회
+    const auth: Auth = await Auth.findOneBy({ userId: user.id });
+    // 만료일 생성
+    const expires = new Date(Date.now() + (Number(options.expiresIn) * 1000));
+    // 검증을 위한 리프레쉬 토큰 저장
+    auth ? await Auth.update(auth.id, { token: refreshToken, createAt: new Date(), expires }) : await Auth.save(Auth.create({ userId: user.id, token: refreshToken, createAt: new Date(), expires }));
+
     // 토큰 반환
     return { accessToken, refreshToken };
+  }
+  /**
+   * [Method] 로그아웃
+   * @param accessToken 액세스 토큰
+   */
+  async signout(accessToken: string): Promise<void> {
+    // 토큰 복호화
+    const decoded: any = this.jwtService.decode(accessToken);
+    // 리프레쉬 토큰 삭제
+    await Auth.delete({ userId: decoded.sub });
   }
   /**
    * [Method] 회원가입
@@ -70,13 +88,30 @@ export class AuthService {
    * @param refreshToken 리프레쉬 토큰
    * @returns 액세스 토큰
    */
-  async slient(refreshToken: string): Promise<TokenDto> {
-    // Payload 추출
-    const payload: any = this.jwtService.decode(refreshToken);
+  async slient(accessToken: string, refreshToken: string): Promise<TokenDto> {
+    // 액세스 토큰 복호화
+    const payload: any = this.jwtService.decode(accessToken);
+    // 사용자 ID 추출
+    const { sub: userId } = payload;
+
+    // 사용자 리프레쉬 토큰 조회
+    const auth: Auth = await Auth.findOneBy({ userId });
+    // 예외 처리
+    if (!auth) {
+      throw new UnauthorizedException();
+    } else if (Date.now() > auth.expires.getTime()) {
+      // 리프레쉬 토큰 삭제
+      await Auth.delete(auth.id);
+      // 예외 반환
+      throw new UnauthorizedException();
+    } else if (refreshToken !== auth.token) {
+      throw new UnauthorizedException();
+    }
+
     // 액세스 토큰 생성
-    const accessToken: string = this.generateAccessToken(payload.id);
+    const newAccessToken: string = this.generateAccessToken(userId);
     // 액세스 토큰 반환
-    return { accessToken };
+    return { accessToken: newAccessToken };
   }
 
   /**

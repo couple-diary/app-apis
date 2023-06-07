@@ -7,14 +7,15 @@ import { UserModule } from './apis/user/user.module';
 // Configuration
 import { envOptions } from './configs/env.config';
 // TypeORM Configuration
-import { TypeOrmConfigProvider } from './configs/typeorm.config';
+import { MongoConfigProvider, PostgresConfigProvider } from './configs/typeorm.config';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     ConfigModule.forRoot(envOptions),
-    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigProvider })
+    TypeOrmModule.forRootAsync({ useClass: PostgresConfigProvider }),
+    TypeOrmModule.forRootAsync({ useClass: MongoConfigProvider })
   ],
   controllers: [],
   providers: [],
