@@ -15,10 +15,12 @@ export class SignDto {
   password: string;
 }
 
-export class TokenDto {
+export class AccessTokenDto {
   @ApiProperty()
   accessToken: string;
+}
 
+export class TokenDto extends AccessTokenDto {
   @ApiProperty()
-  refreshToken?: string;
+  refreshToken: string;
 }

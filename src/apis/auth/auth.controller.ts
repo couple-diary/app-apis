@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 // DTO
-import { SignDto, TokenDto } from './dto/sign.dto';
+import { AccessTokenDto, SignDto, TokenDto } from './auth.dto';
 // Exception
 import { UnauthorizedException } from '@nestjs/common';
 // Express
@@ -21,7 +21,7 @@ export class AuthController {
   constructor(private authService: AuthService, private configService: ConfigService) {}
 
   @ApiOperation({ summary: '로그인' })
-  @ApiResponse({ status: 200, description: '로그인 성공' })
+  @ApiResponse({ status: 200, description: '로그인 성공', type: AccessTokenDto })
   @ApiResponse({ status: 401, description: '권한 없음' })
   @HttpCode(200)
   @Post('/signin')
@@ -69,12 +69,12 @@ export class AuthController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: '로그인 갱신' })
-  @ApiResponse({ status: 200, description: '로그인 갱신 성공' })
+  @ApiResponse({ status: 200, description: '로그인 갱신 성공', type: AccessTokenDto })
   @ApiResponse({ status: 401, description: '권한 없음' })
   @HttpCode(200)
   @Post('/slient')
   @UseGuards(SlientAuthGuard)
-  slient(@Req() req: Request): Promise<TokenDto> {
+  slient(@Req() req: Request): Promise<AccessTokenDto> {
     // 사용자 ID
     const userId: string = this.extractUserId(req);
 
