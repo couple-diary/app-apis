@@ -13,7 +13,7 @@ import { Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 // Swagger
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('인증')
 @Controller('auth')
@@ -38,6 +38,7 @@ export class AuthController {
     return res.json({ accessToken: result.accessToken });
   }
 
+  @ApiBearerAuth()
   @ApiOperation({ summary: '로그아웃' })
   @ApiResponse({ status: 200, description: '로그아웃 성공' })
   @ApiResponse({ status: 401, description: '권한 없음' })
@@ -66,6 +67,7 @@ export class AuthController {
     return this.authService.signup(input);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({ summary: '로그인 갱신' })
   @ApiResponse({ status: 200, description: '로그인 갱신 성공' })
   @ApiResponse({ status: 401, description: '권한 없음' })

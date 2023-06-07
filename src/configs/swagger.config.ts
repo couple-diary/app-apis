@@ -11,7 +11,7 @@ export class Swagger {
   private config: any;
 
   constructor({ title, description, version }: any) {
-    this.config = this.builder.setTitle(title).setDescription(description).setVersion(version ? version : '1.0.0').build();
+    this.config = this.builder.setTitle(title).setDescription(description).setVersion(version ? version : '1.0.0').addBearerAuth().build();
   }
 
   setup(app: INestApplication): void {
