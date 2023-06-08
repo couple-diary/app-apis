@@ -1,16 +1,25 @@
-import { BaseEntity, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 // Entity
-import { RawUser } from '../user/user.entity';
+import { Event } from '../event/event.entity';
+import { User } from '../user/user.entity';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Group extends BaseEntity {
-  @ApiProperty({ description: 'ID', type: String })
+  @ApiProperty()
   @PrimaryColumn()
   id: string;
 
-  @ApiProperty({ description: '소속된 사용자', type: [RawUser] })
-  @OneToMany(type => RawUser, user => user.group, { eager: false })
-  users: RawUser[];
+  @ApiProperty()
+  @Column()
+  createAt: Date;
+
+  @ApiProperty()
+  @OneToMany(type => User, user => user.group)
+  users: User[];
+
+  @ApiProperty()
+  @OneToMany(type => Event, event => event.group)
+  events: Event[];
 }

@@ -1,26 +1,27 @@
 import { Module } from '@nestjs/common';
-// Modules
-import { AuthModule } from './apis/auth/auth.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+// API Module
+import { AuthModule } from './apis/auth/auth.module';
 import { UserModule } from './apis/user/user.module';
-// TypeORM
-import { DatabaseOptionsFactory } from './configs/typeorm.config';
+// Configuration
+import { envOptions } from './configs/env.config';
+// TypeORM Configuration
+import { MongoConfigProvider, PostgresConfigProvider } from './configs/typeorm.config';
 import { GroupModule } from './apis/group/group.module';
+import { EventModule } from './apis/event/event.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useClass: DatabaseOptionsFactory,
-    }),
     AuthModule,
     UserModule,
+    ConfigModule.forRoot(envOptions),
+    TypeOrmModule.forRootAsync({ useClass: PostgresConfigProvider }),
+    TypeOrmModule.forRootAsync({ useClass: MongoConfigProvider }),
     GroupModule,
-  ]
+    EventModule
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
