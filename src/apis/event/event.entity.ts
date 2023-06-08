@@ -14,11 +14,7 @@ export class Event extends BaseEntity {
   @ApiProperty()
   @Column()
   title: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  description: string;
-
+  
   @ApiProperty()
   @Column()
   start: Date;

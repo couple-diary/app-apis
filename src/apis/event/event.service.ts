@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 // Entity
 import { Event } from './event.entity';
+import { Group } from '../group/group.entity';
 import { User } from '../user/user.entity';
 // Exception
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -9,7 +10,6 @@ import { GroupService } from '../group/group.service';
 import { UserService } from '../user/user.service';
 // UUID
 import { v4 as uuid } from 'uuid'; 
-import { Group } from '../group/group.entity';
 
 @Injectable()
 export class EventService {
