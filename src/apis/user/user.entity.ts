@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 // Entity
 import { Event } from '../event/event.entity';
 import { Group } from '../group/group.entity';
@@ -17,8 +17,8 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column()
-  createAt: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
   @ManyToOne(type => Group, group => group.users, { eager: true })
   group: Group;
@@ -35,7 +35,7 @@ export class UserInfo {
   nickname: string;
 
   @ApiProperty()
-  createAt: Date;
+  createdAt: Date;
 
   @ApiProperty()
   group: Group;

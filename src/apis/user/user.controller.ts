@@ -35,4 +35,36 @@ export class UserController {
     // 민감정보 삭제 후 반환
     return this.userService.removeSensitiveInfo(user);
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '그룹 참가 [개발용]' })
+  @ApiResponse({ status: 200, description: '탈퇴 성공' })
+  @ApiResponse({ status: 400, description: '참가 실패' })
+  @ApiResponse({ status: 401, description: '권한 없음' })
+  @ApiResponse({ status: 500, description: '서버 에러' })
+  @Patch('/group/join')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async join(@Req() req: Request, @Body() input: JoinGroupDto): Promise<void> {
+    // 사용자 ID 추출
+    const userId: string = extractUserId(req);
+    // 그룹 ID 추출
+    const { groupId } = input;
+    // 민감정보 삭제 후 반환
+    return this.userService.joinGroup(userId, groupId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '그룹 탈퇴' })
+  @ApiResponse({ status: 200, description: '탈퇴 성공' })
+  @ApiResponse({ status: 401, description: '권한 없음' })
+  @ApiResponse({ status: 500, description: '서버 에러' })
+  @Patch('/group/withdrawal')
+  @UseGuards(JwtAuthGuard)
+  async withdrawal(@Req() req: Request): Promise<void> {
+    // 사용자 ID 추출
+    const userId: string = extractUserId(req);
+    // 민감정보 삭제 후 반환
+    return this.userService.withdrawalGroup(userId);
+  }
 }
