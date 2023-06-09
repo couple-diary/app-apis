@@ -2,13 +2,12 @@ import { Body, Controller, Param, Req, UseGuards, UsePipes, ValidationPipe } fro
 import { Request } from 'express';
 // DTO
 import { CreateGroupDto } from './dto/create.dto';
-import { JoinGroupDto } from './dto/join.dto';
 // Entity
 import { Group } from './group.entity';
 // Guard
 import { JwtAuthGuard } from '../auth/auth.guard';
 // Method
-import { Get, Patch, Post } from '@nestjs/common';
+import { Get, Post } from '@nestjs/common';
 // Service
 import { GroupService } from './group.service';
 // Swagger
@@ -49,37 +48,5 @@ export class GroupController {
   find(@Param('id') id: string): Promise<Group> {
     // 그룹 생성
     return this.groupService.find(id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '그룹 참가 [개발용]' })
-  @ApiResponse({ status: 200, description: '탈퇴 성공' })
-  @ApiResponse({ status: 400, description: '참가 실패' })
-  @ApiResponse({ status: 401, description: '권한 없음' })
-  @ApiResponse({ status: 500, description: '서버 에러' })
-  @Patch('/join')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  async join(@Req() req: Request, @Body() input: JoinGroupDto): Promise<void> {
-    // 사용자 ID 추출
-    const userId: string = extractUserId(req);
-    // 그룹 ID 추출
-    const { groupId } = input;
-    // 민감정보 삭제 후 반환
-    return this.groupService.join(groupId, userId);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '그룹 탈퇴' })
-  @ApiResponse({ status: 200, description: '탈퇴 성공' })
-  @ApiResponse({ status: 401, description: '권한 없음' })
-  @ApiResponse({ status: 500, description: '서버 에러' })
-  @Patch('/withdrawal')
-  @UseGuards(JwtAuthGuard)
-  async withdrawal(@Req() req: Request): Promise<void> {
-    // 사용자 ID 추출
-    const userId: string = extractUserId(req);
-    // 민감정보 삭제 후 반환
-    return this.groupService.withdrawal(userId);
   }
 }

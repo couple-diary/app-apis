@@ -13,12 +13,12 @@ import { BadRequestException, InternalServerErrorException, UnauthorizedExceptio
 // JWT
 import { JwtService } from '@nestjs/jwt';
 import type { JwtSignOptions } from '@nestjs/jwt'
-// Service
-import { UserService } from '../user/user.service';
+// Repository
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class AuthService {
-  constructor(private configService: ConfigService, private jwtService: JwtService, private userService: UserService) {}
+  constructor(private configService: ConfigService, private jwtService: JwtService, private userRepository: UserRepository) {}
 
   /**
    * [Method] 로그인
@@ -29,7 +29,7 @@ export class AuthService {
     // 사용자 정보 추출
     const { nickname, password } = input;
     // 사용자 조회
-    const user: User = await this.userService.findOneByNickname(nickname, false);
+    const user: User = await this.userRepository.findByNickname(nickname, false);
     // 예외 처리
     if (!user || !(await compare(password, user.password))) throw new UnauthorizedException('아이디 또는 비밀번호가 올바르지 않아요. 입력하신 내용을 다시 확인해주세요.');
 
@@ -72,7 +72,7 @@ export class AuthService {
     // 사용자 정보 추출
     const { nickname, password } = input;
     // 닉네임 중복 확인을 위한 조회
-    const user: User = await this.userService.findOneByNickname(nickname, false);
+    const user: User = await this.userRepository.findByNickname(nickname, false);
     // 닉네임이 존재하는 경우
     if (user) throw new BadRequestException('이미 존재하는 닉네임이예요.');
 
@@ -82,7 +82,7 @@ export class AuthService {
     const encrypted: string = await hash(password, salt);
 
     // 사용자 생성
-    return await this.userService.create(nickname, encrypted);
+    return await this.userRepository.createUser(nickname, encrypted);
   }
   /**
    * [Method] 액세스 토큰 갱신

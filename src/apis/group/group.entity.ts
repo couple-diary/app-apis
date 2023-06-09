@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 // Entity
 import { Event } from '../event/event.entity';
 import { User } from '../user/user.entity';
@@ -12,8 +12,8 @@ export class Group extends BaseEntity {
   id: string;
 
   @ApiProperty()
-  @Column()
-  createAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
   @ApiProperty()
   @OneToMany(type => User, user => user.group)
